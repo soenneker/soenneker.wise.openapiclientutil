@@ -6,12 +6,12 @@ using Soenneker.Wise.OpenApiClientUtil.Abstract;
 namespace Soenneker.Wise.OpenApiClientUtil.Registrars;
 
 /// <summary>
-/// Registers the OpenAPI client utility for dependency injection.
+/// Registers the cached Wise API client provider.
 /// </summary>
 public static class WiseOpenApiClientUtilRegistrar
 {
     /// <summary>
-    /// Adds <see cref="WiseOpenApiClientUtil"/> as a singleton service. <para/>
+    /// Adds the Wise API client provider as a singleton service.
     /// </summary>
     public static IServiceCollection AddWiseOpenApiClientUtilAsSingleton(this IServiceCollection services)
     {
@@ -22,7 +22,7 @@ public static class WiseOpenApiClientUtilRegistrar
     }
 
     /// <summary>
-    /// Adds <see cref="WiseOpenApiClientUtil"/> as a scoped service. <para/>
+    /// Adds the Wise API client provider as a scoped service while retaining the singleton HTTP transport.
     /// </summary>
     public static IServiceCollection AddWiseOpenApiClientUtilAsScoped(this IServiceCollection services)
     {

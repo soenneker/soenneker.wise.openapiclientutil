@@ -2,34 +2,31 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Http.HttpClientLibrary;
-using Soenneker.Extensions.Configuration;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Wise.HttpClients.Abstract;
 using Soenneker.Wise.OpenApiClientUtil.Abstract;
 using Soenneker.Wise.OpenApiClient;
-using Soenneker.Kiota.GenericAuthenticationProvider;
 using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Wise.OpenApiClientUtil;
 
-///<inheritdoc cref="IWiseOpenApiClientUtil"/>
 public sealed class WiseOpenApiClientUtil : IWiseOpenApiClientUtil
 {
     private readonly AsyncSingleton<WiseOpenApiClient> _client;
 
-    public WiseOpenApiClientUtil(IWiseOpenApiHttpClient httpClientUtil, IConfiguration configuration)
+    public WiseOpenApiClientUtil(IWiseOpenApiHttpClient httpClientProvider)
     {
         _client = new AsyncSingleton<WiseOpenApiClient>(async token =>
         {
-            HttpClient httpClient = await httpClientUtil.Get(token).NoSync();
+            HttpClient httpClient = await httpClientProvider.Get(token).NoSync();
 
-            var apiKey = configuration.GetValueStrict<string>("Wise:ApiKey");
-            string authHeaderValueTemplate = configuration["Wise:AuthHeaderValueTemplate"] ?? "Bearer {token}";
-            string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
-
-            var requestAdapter = new HttpClientRequestAdapter(new GenericAuthenticationProvider(headerValue: authHeaderValue), httpClient: httpClient);
+            var requestAdapter = new HttpClientRequestAdapter(new AnonymousAuthenticationProvider(), httpClient: httpClient)
+            {
+                BaseUrl = httpClient.BaseAddress?.AbsoluteUri.TrimEnd('/') ??
+                          throw new InvalidOperationException("The Wise HTTP client does not have a base address.")
+            };
 
             return new WiseOpenApiClient(requestAdapter);
         });
@@ -40,18 +37,11 @@ public sealed class WiseOpenApiClientUtil : IWiseOpenApiClientUtil
         return _client.Get(cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
         _client.Dispose();
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
         return _client.DisposeAsync();

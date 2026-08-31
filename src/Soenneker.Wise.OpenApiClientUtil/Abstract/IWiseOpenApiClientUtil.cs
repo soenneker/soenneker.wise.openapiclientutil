@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 namespace Soenneker.Wise.OpenApiClientUtil.Abstract;
 
 /// <summary>
-/// Exposes a cached OpenAPI client instance.
+/// Provides a cached Wise API client backed by the configured HTTP transport.
 /// </summary>
-public interface IWiseOpenApiClientUtil: IDisposable, IAsyncDisposable
+public interface IWiseOpenApiClientUtil : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Gets the value.
+    /// Gets the cached Wise API client.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <returns>The configured Wise API client.</returns>
     ValueTask<WiseOpenApiClient> Get(CancellationToken cancellationToken = default);
 }
