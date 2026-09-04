@@ -12,6 +12,7 @@ using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Wise.OpenApiClientUtil;
 
+/// <inheritdoc cref="IWiseOpenApiClientUtil" />
 public sealed class WiseOpenApiClientUtil : IWiseOpenApiClientUtil
 {
     private readonly AsyncSingleton<WiseOpenApiClient> _client;
